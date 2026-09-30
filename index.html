@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frog Hop! Adding 2-digit numbers</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff4d6;--card:#ffffff;--ink:#3a2a12;--soft:#7a6440;--main:#ff7a3d;--main-d:#d85a1f;--sun:#ffc93c;--bad:#7c8cff;--pond:#c9ecf7;--ten:#3d9be9;--one:#e9553d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2c2412;--card:#40331a;--ink:#fff3d8;--soft:#d9c69a;--pond:#1c4a5c}}
+:root[data-theme="dark"]{--bg:#2c2412;--card:#40331a;--ink:#fff3d8;--soft:#d9c69a;--pond:#1c4a5c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Fredoka','Comic Sans MS','Trebuchet MS',sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:560px;padding:16px;text-align:center}
+h1{font-size:2rem;margin:.3em 0}
+.big{font-size:5.5rem;line-height:1;margin:.1em 0}
+.card{background:var(--card);border-radius:28px;padding:18px;box-shadow:0 6px 0 rgba(0,0,0,.12)}
+.hud{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.track{flex:1;height:44px;background:var(--pond);border-radius:99px;position:relative}
+.frog{position:absolute;top:2px;left:0;font-size:2rem;transition:left .6s cubic-bezier(.3,1.6,.5,1);line-height:1.2}
+.flag{position:absolute;right:8px;top:4px;font-size:1.6rem}
+.stars{font-size:1.3rem;min-width:60px}
+.q{font-size:1.7rem;font-weight:600;margin:6px 0}
+.vis{background:var(--bg);border-radius:20px;padding:10px;margin:8px 0;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:6px;min-height:70px;font-size:1.3rem}
+.grp{display:flex;align-items:flex-end;gap:3px;padding:4px 8px;border-radius:12px;background:var(--card)}
+.rod{width:14px;height:56px;background:var(--ten);border-radius:3px;border:2px solid #1f6fb3}
+.cube{width:14px;height:14px;background:var(--one);border-radius:3px;border:2px solid #b03520;margin-bottom:2px}
+.ones{display:grid;grid-template-columns:repeat(5,14px);gap:2px;align-items:end}
+.plus{font-size:2rem;font-weight:600;align-self:center}
+.bar{display:flex;width:100%;font-weight:600;font-size:1.2rem}
+.bar div{padding:12px 4px;border:3px solid var(--ink)}
+.bar .a{background:var(--card)}.bar .b{background:#ffd98a;color:#3a2a12;border-left:0}
+.big-eq{font-size:2.4rem;font-weight:600}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:300px;font-weight:600;font-size:1.5rem}
+.tri span{padding:10px;border-radius:14px;background:var(--card)}
+.tri .c{border-radius:99px;background:#ffb3b3;color:#3a2a12}.tri .m{background:var(--sun);color:#3a2a12}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+button{font-family:inherit;font-size:1.7rem;font-weight:600;border:0;border-radius:22px;padding:14px 6px;cursor:pointer;color:#fff;background:var(--main);box-shadow:0 6px 0 var(--main-d);min-height:64px}
+button:active{transform:translateY(4px);box-shadow:0 2px 0 var(--main-d)}
+button:focus-visible{outline:4px solid var(--ten);outline-offset:3px}
+.opt{background:var(--card);color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.opt.no{background:var(--bad);color:#fff;animation:wob .4s}
+.opt.yes{background:#3fae49;color:#fff}
+.say{background:var(--sun);color:#3b2e00;box-shadow:0 5px 0 #d19a00;font-size:1.1rem;min-height:44px;padding:6px 14px}
+.msg{min-height:2.4em;font-size:1.25rem;font-weight:600;margin-top:12px}
+.next{margin-top:6px;width:100%}
+.hide{display:none}
+@keyframes wob{25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+@keyframes bounce{50%{transform:translateY(-14px)}}
+.bounce{animation:bounce 1.2s infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<section id="start" class="card">
+  <div class="big bounce">🐸</div>
+  <h1>Frog Hop!</h1>
+  <p style="font-size:1.3rem">Help the frog hop across the pond by adding numbers. Every right answer is one hop!</p>
+  <button id="go" style="padding:14px 40px">▶ Play</button>
+  <p style="color:var(--soft)">Tip: tap 🔊 to hear the question.</p>
+</section>
+
+<section id="play" class="hide">
+  <div class="hud"><div class="track"><span class="frog" id="frog">🐸</span><span class="flag">🏁</span></div><div class="stars" id="stars">⭐ 0</div></div>
+  <div class="card">
+    <div class="q" id="q"></div>
+    <button class="say" id="say">🔊 Read to me</button>
+    <div class="vis" id="vis"></div>
+    <div class="opts" id="opts"></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+    <button class="next hide" id="next">Next ➜</button>
+  </div>
+</section>
+
+<section id="end" class="card hide">
+  <div class="big bounce">🏆</div>
+  <h1>Hooray! You made it!</h1>
+  <p style="font-size:1.4rem" id="score"></p>
+  <p style="font-size:1.2rem">Remember: add the tens, add the ones, then put them together!</p>
+  <button id="again" style="padding:14px 30px">↻ Play again</button>
+</section>
+</main>
+
+<script>
+const blocks=n=>{const t=Math.floor(n/10),o=n%10;
+ return '<div class="grp">'+'<div class="rod"></div>'.repeat(t)+'<div class="ones">'+'<div class="cube"></div>'.repeat(o)+'</div></div>'};
+const add=(a,b)=>blocks(a)+'<span class="plus">+</span>'+blocks(b);
+const bar=(a,b)=>`<div class="bar"><div class="a" style="flex:${a}">${a} cm</div><div class="b" style="flex:${b}">${b} cm</div></div>`;
+const eq=t=>`<div class="big-eq">${t}</div>`;
+const Q=[
+ {q:"22 + 34 is about…  (22 is near 20, 34 is near 30)",v:eq("22 + 34 ≈ ?"),o:[50,30,90],a:50,f:"20 + 30 = 50. It's a bit more than 50!"},
+ {q:"What is a good guess for 47 + 25?",v:eq("47 + 25 ≈ ?"),o:[20,70,150],a:70,f:"About 50 + 20 = 70. A good guess!"},
+ {q:"Add the tens first: 40 + 20 = ?",v:add(47,25),o:[50,60,70],a:60,f:"4 tens + 2 tens = 6 tens = 60."},
+ {q:"Now add the ones: 7 + 5 = ?",v:add(47,25),o:[11,12,13],a:12,f:"7 + 5 = 12."},
+ {q:"12 ones can be regrouped as 1 ten and how many ones?",v:blocks(12),o:[1,2,3],a:2,f:"12 ones = 1 ten and 2 ones. That's regrouping!"},
+ {q:"Put them together: 60 + 12 = ?",v:eq("60 + 12 = ?"),o:[62,72,82],a:72,f:"47 + 25 = 72. You solved it!"},
+ {q:"How long is this in total? 26 + 10 = ?",v:bar(26,10),o:[36,46,16],a:36,f:"26 + 10 = 36 cm."},
+ {q:"Now add 5 more: 36 + 5 = ?",v:eq("36 + 5 = ?"),o:[40,41,42],a:41,f:"36 + 4 = 40, then 1 more = 41. So 26 + 15 = 41 cm!"},
+ {q:"Total length of 26 cm + 35 cm?",v:bar(26,35),o:[51,61,71],a:61,f:"26 + 30 = 56, then 56 + 5 = 61 cm."},
+ {q:"Total length of 56 cm + 35 cm?",v:bar(56,35),o:[81,91,101],a:91,f:"56 + 30 = 86, then 86 + 5 = 91 cm."},
+ {q:"Number puzzle: each box adds its two circles. What is 15 + 34?",v:'<div class="tri"><span class="c">22</span><span></span><span></span><span class="m">37</span><span></span><span class="m">?</span><span class="c">15</span><span class="m">?</span><span class="c">34</span></div>',o:[39,49,59],a:49,f:"15 + 34 = 49. The middle box is 49!"}
+];
+const $=id=>document.getElementById(id);
+let i=0,stars=0,tries=0,locked=false;
+const show=id=>["start","play","end"].forEach(s=>$(s).classList.toggle("hide",s!==id));
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+function hop(n){const w=$("frog").parentElement.clientWidth-60;$("frog").style.left=(w*n/Q.length)+"px"}
+function load(){
+  const c=Q[i];tries=0;locked=false;
+  $("q").textContent=c.q;$("vis").innerHTML=c.v;$("msg").textContent="";$("next").classList.add("hide");
+  $("opts").innerHTML="";
+  shuffle(c.o).forEach(n=>{const b=document.createElement("button");b.className="opt";b.textContent=n;b.onclick=()=>pick(b,n);$("opts").appendChild(b)});
+}
+function pick(b,n){
+  if(locked)return;
+  if(n===Q[i].a){
+    locked=true;b.classList.add("yes");if(tries===0)stars++;
+    $("stars").textContent="⭐ "+stars;
+    $("msg").textContent="🎉 "+Q[i].f;speak(Q[i].f);hop(i+1);
+    $("next").textContent=i===Q.length-1?"Finish 🏁":"Next ➜";$("next").classList.remove("hide");
+  }else{tries++;b.classList.add("no");b.disabled=true;$("msg").textContent="Oops! Try again 💪"}
+}
+$("go").onclick=()=>{i=0;stars=0;$("stars").textContent="⭐ 0";show("play");hop(0);load();speak(Q[0].q)};
+$("next").onclick=()=>{
+  if(i<Q.length-1){i++;load();speak(Q[i].q)}
+  else{$("score").textContent="You got "+stars+" ⭐ out of "+Q.length+"!";show("end");speak("Well done! You got "+stars+" stars!")}
+};
+$("say").onclick=()=>speak(Q[i].q);
+$("again").onclick=()=>$("go").onclick();
+</script>
+</body>
+</html>
